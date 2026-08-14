@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DexTerm · Pokédex</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <h1>DEX<span>TERM</span></h1>
+    </div>
+    <form id="search-form" class="search">
+      <input id="search-input" type="text" placeholder="charizard, 006, pikachu…" autocomplete="off" />
+      <button type="submit">BUSCAR</button>
+    </form>
+  </header>
+
+  <main id="app">
+
+    <section id="empty-state" class="empty-state">
+      <p class="eyebrow">TERMINAL EN ESPERA</p>
+      <h2>Ingresá un nombre o número de Pokédex</h2>
+      <p class="hint">Ej: <button class="chip-btn" data-name="charizard">charizard</button>
+        <button class="chip-btn" data-name="greninja">greninja</button>
+        <button class="chip-btn" data-name="gengar">gengar</button></p>
+    </section>
+
+    <section id="loading-state" class="loading-state hidden">
+      <div class="pokeball-spinner"></div>
+      <p>Consultando PokéAPI…</p>
+    </section>
+
+    <section id="error-state" class="error-state hidden">
+      <p class="eyebrow">SIN SEÑAL</p>
+      <h2 id="error-msg">No se encontró ese Pokémon.</h2>
+    </section>
+
+    <section id="result" class="result hidden">
+
+      <!-- HERO -->
+      <section class="hero card">
+        <div class="hero-visual">
+          <div class="dex-number" id="dex-number">#000</div>
+          <img id="sprite" class="sprite" src="" alt="" />
+          <div class="sprite-toggle">
+            <button id="btn-shiny" class="ghost-btn">✦ Shiny</button>
+            <button id="btn-cry" class="ghost-btn">▶ Grito</button>
+          </div>
+        </div>
+        <div class="hero-info">
+          <p class="eyebrow" id="species-genus">—</p>
+          <h2 id="poke-name" class="poke-name">—</h2>
+          <p id="poke-name-en" class="poke-name-en">—</p>
+          <div class="type-row" id="type-row"></div>
+          <p id="flavor-text" class="flavor-text">—</p>
+          <div class="meta-row">
+            <div><span class="meta-label">Altura</span><span id="height" class="meta-val">—</span></div>
+            <div><span class="meta-label">Peso</span><span id="weight" class="meta-val">—</span></div>
+            <div><span class="meta-label">Cría</span><span id="egg-groups" class="meta-val">—</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- EVOLUTION -->
+      <section class="card">
+        <h3 class="section-title">Cadena de evolución</h3>
+        <div id="evolution-chain" class="evolution-chain"></div>
+      </section>
+
+      <!-- STATS -->
+      <section class="card">
+        <h3 class="section-title">Estadísticas base</h3>
+        <div id="stats" class="stats"></div>
+      </section>
+
+      <!-- ABILITIES -->
+      <section class="card">
+        <h3 class="section-title">Habilidades</h3>
+        <div id="abilities" class="abilities"></div>
+      </section>
+
+      <!-- COMPETITIVE SET (Smogon usage stats) -->
+      <section class="card">
+        <h3 class="section-title">Sets sugeridos por la comunidad (10+ fuentes)</h3>
+        <p class="competitive-note">
+          Cada tarjeta sale de <strong>estadísticas de uso reales</strong> de un
+          formato/nivel de juego distinto en
+          <a href="https://www.smogon.com/stats/" target="_blank" rel="noopener">Smogon Stats</a>
+          (OU, Ubers, UU, VGC, Monotype, ladder alto vs. general, etc.): qué
+          naturaleza, objeto, habilidad, EVs y movimientos elige de verdad esa
+          comunidad — no son análisis de texto de nadie, son porcentajes
+          agregados de partidas jugadas. Cada tarjeta tiene su crédito de fuente.
+        </p>
+        <div id="competitive-body" class="competitive-body"></div>
+      </section>
+
+      <!-- MOVES -->
+      <section class="card">
+        <h3 class="section-title">Movimientos por generación</h3>
+        <div id="gen-tabs" class="gen-tabs"></div>
+        <div id="method-tabs" class="method-tabs"></div>
+        <div id="moves-status" class="moves-status"></div>
+        <div class="table-wrap">
+          <table id="moves-table" class="moves-table">
+            <thead>
+              <tr>
+                <th>Nombre (ES)</th>
+                <th>Nombre (EN)</th>
+                <th>Tipo</th>
+                <th>Cat.</th>
+                <th>Pot.</th>
+                <th>Prec.</th>
+                <th>PP</th>
+                <th>Nv./Detalle</th>
+                <th>Efecto</th>
+              </tr>
+            </thead>
+            <tbody id="moves-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Datos vía <a href="https://pokeapi.co/" target="_blank" rel="noopener">PokéAPI</a> · Proyecto fan-made sin fines de lucro · Pokémon © Nintendo/Game Freak/Creatures</p>
+  </footer>
+
+  <audio id="cry-audio"></audio>
+
+  <script src="app.js"></script>
+</body>
+</html>
