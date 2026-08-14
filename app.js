@@ -6,6 +6,7 @@
    ========================================================= */
 
 const API = "https://pokeapi.co/api/v2";
+const PROXY_WORKER = "https://dexterm-proxy.reaperfichasotros.workers.dev";
 
 // Grupos de versión = "generaciones jugables" que expone PokéAPI.
 // Cada uno agrupa los juegos donde el movimiento puede aprenderse.
@@ -194,25 +195,22 @@ async function renderStrategyGuide(pokemon) {
   if (!wrap) return;
   wrap.innerHTML = "Cargando información...";
 
-  const targetUrl = `https://www.pokexperto.net/index2.php?seccion=nds/nationaldex/estrategia&pk=${pokemon.id}`;
-  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+  const targetUrl = `https://www.pokexperto.net/index2.php?seccion=nds%2Fnationaldex%2Festrategia&pk=${pokemon.id}`;
 
   try {
-    const res = await fetch(proxyUrl);
+    const res = await fetch(`${PROXY_WORKER}/?url=${encodeURIComponent(targetUrl)}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const html = await res.text();
 
     const doc = new DOMParser().parseFromString(html, "text/html");
     const elemento = doc.getElementById("estrategiaSM");
 
-    if (!elemento) {
-      wrap.innerHTML = "No se encontró información de estrategia para este Pokémon.";
-      return;
-    }
-    wrap.innerHTML = elemento.outerHTML;
+    wrap.innerHTML = elemento
+      ? elemento.outerHTML
+      : "No se encontró información de estrategia para este Pokémon.";
   } catch (err) {
     console.error(err);
-    wrap.innerHTML = "No se pudo cargar la información de estrategia (puede que el proxy público esté caído; probá de nuevo en un rato).";
+    wrap.innerHTML = "No se pudo cargar la información de estrategia.";
   }
 }
 
@@ -557,7 +555,8 @@ function normalizeKey(str) {
 async function findWorkingMonth() {
   for (const month of lastMonths(4)) {
     try {
-      const res = await fetch(`https://www.smogon.com/stats/${month}/chaos/gen9ou-0.json`);
+      const targetUrl = `https://www.smogon.com/stats/${month}/chaos/gen9ou-0.json`;
+      const res = await fetch(`${PROXY_WORKER}/?url=${encodeURIComponent(targetUrl)}`);
       if (res.ok) return month;
     } catch { /* probamos el mes anterior */ }
   }
@@ -581,8 +580,8 @@ async function gatherSmogonSources(pokemonName, month) {
     const cutoffs = EXTRA_ELO_CUTOFFS[fmt.slug] || ["0"];
     for (const cutoff of cutoffs) {
       const url = `https://www.smogon.com/stats/${month}/chaos/gen9${fmt.slug}-${cutoff}.json`;
-      try {
-        const res = await fetch(url);
+         try {
+           const res = await fetch(`${PROXY_WORKER}/?url=${encodeURIComponent(url)}`);
         if (!res.ok) continue;
         const json = await res.json();
         const key = Object.keys(json.data || {}).find((k) => normalizeKey(k) === target);
