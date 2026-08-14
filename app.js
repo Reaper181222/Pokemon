@@ -182,6 +182,33 @@ function renderStats(pokemon) {
   });
 }
 
+
+
+
+
+
+fetch("proxy.php")
+    .then(response => response.text())
+    .then(html => {
+        document.getElementById("pokemon").innerHTML = html;
+    })
+    .catch(error => {
+        document.getElementById("pokemon").innerHTML =
+            "No se pudo cargar la información.";
+        console.error(error);
+    });
+
+
+
+
+
+
+
+
+
+
+
+
 // =========================================================
 // HABILIDADES (nombre ES/EN + efecto)
 // =========================================================
