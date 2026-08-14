@@ -92,6 +92,7 @@ async function searchPokemon(query) {
     renderStats(pokemon);
     await renderAbilities(pokemon);
     renderCompetitiveSet(pokemon); // idem, corre en paralelo con la tabla de movimientos
+    renderStrategyGuide(pokemon);
     setupMoveTabs(pokemon);
 
     hide("#loading-state");
@@ -182,31 +183,38 @@ function renderStats(pokemon) {
   });
 }
 
+// =========================================================
+// ESTRATEGIA (PokéXperto) — sin backend propio, vía proxy CORS público
+// GitHub Pages es hosting estático: no puede ejecutar PHP, así que
+// en vez de pedirle a proxy.php que traiga y parsee la página,
+// lo hacemos acá directo en el navegador con fetch + DOMParser.
+// =========================================================
+async function renderStrategyGuide(pokemon) {
+  const wrap = $("#pokemon");
+  if (!wrap) return;
+  wrap.innerHTML = "Cargando información...";
 
+  const targetUrl = `https://www.pokexperto.net/index2.php?seccion=nds/nationaldex/estrategia&pk=${pokemon.id}`;
+  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
 
+  try {
+    const res = await fetch(proxyUrl);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const html = await res.text();
 
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const elemento = doc.getElementById("estrategiaSM");
 
-
-fetch("proxy.php")
-    .then(response => response.text())
-    .then(html => {
-        document.getElementById("pokemon").innerHTML = html;
-    })
-    .catch(error => {
-        document.getElementById("pokemon").innerHTML =
-            "No se pudo cargar la información.";
-        console.error(error);
-    });
-
-
-
-
-
-
-
-
-
-
+    if (!elemento) {
+      wrap.innerHTML = "No se encontró información de estrategia para este Pokémon.";
+      return;
+    }
+    wrap.innerHTML = elemento.outerHTML;
+  } catch (err) {
+    console.error(err);
+    wrap.innerHTML = "No se pudo cargar la información de estrategia (puede que el proxy público esté caído; probá de nuevo en un rato).";
+  }
+}
 
 
 // =========================================================
